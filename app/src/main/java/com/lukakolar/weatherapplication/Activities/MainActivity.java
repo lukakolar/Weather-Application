@@ -1,5 +1,7 @@
 package com.lukakolar.weatherapplication.Activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import com.lukakolar.weatherapplication.Constants;
 import com.lukakolar.weatherapplication.Entity.CityWeatherObject;
 import com.lukakolar.weatherapplication.R;
 
@@ -31,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                recyclerViewAdapter.add(new CityWeatherObject(null, "Test", null, null, null));
-                checkIfEmpty();
+                Intent addCity = new Intent(MainActivity.this, AddCityActivity.class);
+                startActivityForResult(addCity, Constants.ADD_CITY_REQUEST);
             }
         });
 
@@ -48,6 +51,18 @@ public class MainActivity extends AppCompatActivity {
         textNoItems = (TextView) findViewById(R.id.text_no_items);
 
         checkIfEmpty();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constants.ADD_CITY_REQUEST) {
+            if(resultCode == Activity.RESULT_OK){
+                String name = data.getStringExtra("name");
+                recyclerViewAdapter.add(new CityWeatherObject(null, name, null, null, null));
+                checkIfEmpty();
+            }
+        }
     }
 
     private void checkIfEmpty() {

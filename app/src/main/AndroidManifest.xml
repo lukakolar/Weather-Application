@@ -18,7 +18,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.AddCityActivity" />
+        <activity
+            android:name=".Activities.AddCityActivity"
+            android:label="@string/activity_add_city"
+            android:parentActivityName=".Activities.MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lukakolar.weatherapplication.Activities.MainActivity" />
+        </activity>
         <activity android:name=".Activities.CityInfoActivity"></activity>
     </application>
 
