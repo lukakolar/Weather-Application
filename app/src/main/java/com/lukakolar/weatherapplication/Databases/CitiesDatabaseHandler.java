@@ -43,6 +43,7 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public synchronized void close() {
+        Log.d("databaseC", "closed");
         if (database != null)
             database.close();
         super.close();
@@ -92,10 +93,10 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
 
     private void openDataBase()  {
         if (database == null || !isDatabaseOpen()) {
-            Log.d("database", "OPENING");
+            Log.d("databaseC", "OPENING");
             database = getWritableDatabase();
         } else{
-            Log.d("database", "OPENED");
+            Log.d("databaseC", "OPENED");
         }
     }
 

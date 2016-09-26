@@ -1,12 +1,11 @@
 package com.lukakolar.weatherapplication.Activities;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,15 +14,18 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.lukakolar.weatherapplication.Constants;
+import com.lukakolar.weatherapplication.Databases.WeatherUpdatesDatabaseHandlerSingleton;
 import com.lukakolar.weatherapplication.Entity.CityWeatherObject;
 import com.lukakolar.weatherapplication.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerViewAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
     private TextView textNoItems;
+    private CoordinatorLayout mainLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,22 +53,40 @@ public class MainActivity extends AppCompatActivity {
 
         // Other
         textNoItems = (TextView) findViewById(R.id.text_no_items);
+        mainLayout = (CoordinatorLayout) findViewById(R.id.activity_main);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        w.openDatabase();
+        List<CityWeatherObject> values = w.getSavedCities();
+        recyclerViewAdapter = new RecyclerViewAdapter(this, values);
+        recyclerView.setAdapter(recyclerViewAdapter);
         checkIfEmpty();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        w.close();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        w.openDatabase();
         if (requestCode == Constants.ADD_CITY_REQUEST) {
-            if (resultCode == Activity.RESULT_OK) {
+            if(resultCode == Activity.RESULT_OK){
                 String name = data.getStringExtra(Constants.CITIES_DATABASE_FIELD_NAME);
                 Integer id = data.getIntExtra(Constants.CITIES_DATABASE_FIELD_ID, 0);
                 createEntry(new CityWeatherObject(id, name, null, null, null));
             }
         }
     }
-
 
     private void checkIfEmpty() {
         int length = recyclerViewAdapter.getItemCount();
@@ -80,8 +100,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createEntry(CityWeatherObject item) {
-        recyclerViewAdapter.add(item);
-        checkIfEmpty();
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        boolean already_exists = w.checkIfEntryExists(item);
+        if (already_exists) {
+            showSnackbarCityAlreadyExists(item.name);
+        } else {
+            w.createEntry(item);
+            recyclerViewAdapter.add(item);
+            checkIfEmpty();
+        }
+    }
+
+    private void showSnackbarCityAlreadyExists(String name) {
+        String place = getResources().getString(R.string.activity_main_place);
+        String alreadyExists = getResources().getString(R.string.activity_main_already_exists);
+        String ok = getResources().getString(R.string.ok);
+
+        Snackbar.make(mainLayout, place + " " + name + " " + alreadyExists, Snackbar.LENGTH_LONG)
+                .setAction(ok, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                    }
+                }).show();
 
     }
 }
