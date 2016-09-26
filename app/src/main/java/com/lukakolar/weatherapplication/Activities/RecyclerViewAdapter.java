@@ -55,12 +55,15 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         CityWeatherObject item = values.get(position);
+        holder.layout.setTag(item);
         holder.txtHeader.setText(item.name);
 
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                CityWeatherObject item = (CityWeatherObject) v.getTag();
+                MainActivity mainActivity = ((MainActivity) context);
+                mainActivity.onCitySelected(item);
             }
         });
 

@@ -88,6 +88,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void onCitySelected(CityWeatherObject item) {
+        Intent intent = new Intent(this, CityInfoActivity.class);
+        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_ID, item.id);
+        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_NAME, item.name);
+        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_TEMPERATURE, item.temperature);
+        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_HUMIDITY, item.humidity);
+        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_DESCRIPTION, item.description);
+        startActivity(intent);
+    }
+
     private void checkIfEmpty() {
         int length = recyclerViewAdapter.getItemCount();
         if (length > 0) {

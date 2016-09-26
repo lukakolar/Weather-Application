@@ -28,7 +28,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.lukakolar.weatherapplication.Activities.MainActivity" />
         </activity>
-        <activity android:name=".Activities.CityInfoActivity"></activity>
+        <activity
+            android:name=".Activities.CityInfoActivity"
+            android:parentActivityName=".Activities.MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lukakolar.weatherapplication.Activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
