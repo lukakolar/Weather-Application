@@ -90,6 +90,16 @@ public class WeatherUpdatesDatabaseHandlerSingleton extends SQLiteOpenHelper {
         }
     }
 
+    public void updateEntry(CityWeatherObject item) {
+        ContentValues args = new ContentValues();
+
+        args.put(Constants.WEATHER_UPDATES_DATABASE_FIELD_HUMIDITY, item.humidity);
+        args.put(Constants.WEATHER_UPDATES_DATABASE_FIELD_TEMPERATURE, item.temperature);
+        args.put(Constants.WEATHER_UPDATES_DATABASE_FIELD_DESCRIPTION, item.description);
+        database.update(Constants.WEATHER_UPDATES_DATABASE_TABLE_NAME, args,
+                Constants.WEATHER_UPDATES_DATABASE_FIELD_ID + "=" + item.id, null);
+    }
+
     public boolean checkIfEntryExists(CityWeatherObject item){
         boolean entryExists = false;
 
@@ -107,6 +117,29 @@ public class WeatherUpdatesDatabaseHandlerSingleton extends SQLiteOpenHelper {
             cursor.close();
         }
         return entryExists;
+    }
+
+    public ArrayList<Integer> getCityIds() {
+
+        ArrayList<Integer> ids = new ArrayList<>();
+
+        Cursor cursor = database.query(true, Constants.WEATHER_UPDATES_DATABASE_TABLE_NAME,
+                new String[]{Constants.WEATHER_UPDATES_DATABASE_FIELD_ID},
+                null, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+
+                int id = Integer.parseInt(cursor.getString(cursor
+                        .getColumnIndex(Constants.WEATHER_UPDATES_DATABASE_FIELD_ID)));
+                ids.add(id);
+
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return ids;
     }
 
     public List<CityWeatherObject> getSavedCities() {

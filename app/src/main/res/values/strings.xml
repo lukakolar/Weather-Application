@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Weather Application</string>
     <string name="ok">OK</string>
+    <string name="retry">RETRY</string>
     <string name="degrees_celsius">°C</string>
     <string name="percent">%</string>
     <string name="action_settings">Settings</string>
@@ -8,6 +9,8 @@
     <string name="activity_main_place">Place</string>
     <string name="activity_main_already_exists">already exists</string>
     <string name="activity_main_refresh_to_get_temperature">Refresh to get temperature</string>
+    <string name="activity_main_network_unavailable">Network unavailable</string>
+    <string name="activity_main_error_fetching_data">Error fetching data</string>
     <string name="activity_add_city">Add City</string>
     <string name="activity_add_city_hint">Search</string>
     <string name="activity_add_city_you_cannot_select_this_place">You cannot select this place</string>
