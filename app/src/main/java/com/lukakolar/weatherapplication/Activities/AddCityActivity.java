@@ -109,7 +109,7 @@ public class AddCityActivity extends AppCompatActivity {
 
     void showSuggestions(final String searchTerm){
         currentEnteredText = searchTerm;
-        if (!queryRunning && citiesDatabaseHandler.isDatabaseOpen()) {
+        if (!queryRunning && citiesDatabaseHandler != null && citiesDatabaseHandler.isDatabaseOpen()) {
             queryRunning = true;
             citiesDatabaseHandler.getSuggestions(searchTerm);
         } else {
