@@ -33,35 +33,40 @@ public class CityInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_info);
 
+        // Layout
+        mainLayout = (LinearLayout) findViewById(R.id.activity_city_info);
         temperatureView = (TextView) findViewById(R.id.activity_city_info_temperature);
         humidityView = (TextView) findViewById(R.id.activity_city_info_humidity);
         descriptionView = (TextView) findViewById(R.id.activity_city_info_description);
 
+        // Get data for views
         if (savedInstanceState != null) {
-            CityWeatherObject city = savedInstanceState.getParcelable(Constants.CITY_WEATHER_OBJECT);
+            CityWeatherObject city = savedInstanceState.getParcelable(Constants
+                    .CITY_WEATHER_OBJECT);
             updateInfo(city);
         } else {
             Intent intent = getIntent();
-            CityWeatherObject city = intent.getExtras().getParcelable(Constants.CITY_WEATHER_OBJECT);
+            CityWeatherObject city = intent.getExtras().getParcelable(Constants
+                    .CITY_WEATHER_OBJECT);
             updateInfo(city);
         }
 
         // SwipeRefreshLayout
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_city_info_swipe_refresh_layout);
-
-        // Other
-        mainLayout = (LinearLayout) findViewById(R.id.activity_city_info);
-
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id
+                .activity_city_info_swipe_refresh_layout);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                .getInstance(this);
         w.openDatabase();
 
-        swipeRefreshLayoutUpdater = new SwipeRefreshLayoutUpdater(this, swipeRefreshLayout, new SwipeRefreshLayoutCallbacksInterface() {
+        // Performs updates via API and listens for callbacks regarding updates
+        swipeRefreshLayoutUpdater = new SwipeRefreshLayoutUpdater(this, swipeRefreshLayout, new
+                SwipeRefreshLayoutCallbacksInterface() {
             @Override
             public void onConnectionUnavailable() {
                 showSnackbarNoInternetConnection();
@@ -90,7 +95,8 @@ public class CityInfoActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                .getInstance(this);
         w.close();
     }
 
@@ -101,6 +107,7 @@ public class CityInfoActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    // Updates all views
     private void updateInfo(CityWeatherObject city) {
         currentCity = new CityWeatherObject(city);
 
@@ -115,17 +122,19 @@ public class CityInfoActivity extends AppCompatActivity {
         }
 
         if (city.description == null) {
-            String refreshToGetTemperature = getResources().getString(R.string.activity_main_refresh_to_get_temperature);
+            String refreshToGetTemperature = getResources().getString(R.string
+                    .activity_main_refresh_to_get_temperature);
             temperatureView.setText(refreshToGetTemperature);
         } else {
-            temperatureView.setText(city.temperature  + " " + degrees_celsius);
+            temperatureView.setText(city.temperature + " " + degrees_celsius);
             humidityView.setText(city.humidity + " " + percent);
             descriptionView.setText(city.description);
         }
     }
 
     private void showSnackbarNoInternetConnection() {
-        String networkUnavailable = getResources().getString(R.string.activity_main_network_unavailable);
+        String networkUnavailable = getResources().getString(R.string
+                .activity_main_network_unavailable);
         String ok = getResources().getString(R.string.ok);
 
         Snackbar snackbar = Snackbar
@@ -140,7 +149,8 @@ public class CityInfoActivity extends AppCompatActivity {
     }
 
     private void showSnackbarErrorFetchingData() {
-        String errorFetchingData = getResources().getString(R.string.activity_main_error_fetching_data);
+        String errorFetchingData = getResources().getString(R.string
+                .activity_main_error_fetching_data);
         String retry = getResources().getString(R.string.retry);
 
         Snackbar snackbar = Snackbar

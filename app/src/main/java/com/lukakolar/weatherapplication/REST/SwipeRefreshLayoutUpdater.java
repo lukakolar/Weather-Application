@@ -32,7 +32,9 @@ public class SwipeRefreshLayoutUpdater {
     private ConnectivityManager connectivityManager;
     private SwipeRefreshLayoutCallbacksInterface swipeRefreshLayoutCallbacksInterface;
 
-    public SwipeRefreshLayoutUpdater(Context context, SwipeRefreshLayout swipeRefreshLayout, SwipeRefreshLayoutCallbacksInterface swipeRefreshLayoutCallbacksInterface) {
+    public SwipeRefreshLayoutUpdater(Context context, SwipeRefreshLayout swipeRefreshLayout,
+                                     SwipeRefreshLayoutCallbacksInterface
+                                             swipeRefreshLayoutCallbacksInterface) {
         this.context = context;
         this.swipeRefreshLayout = swipeRefreshLayout;
         this.swipeRefreshLayoutCallbacksInterface = swipeRefreshLayoutCallbacksInterface;
@@ -53,7 +55,6 @@ public class SwipeRefreshLayoutUpdater {
                     @Override
                     public void onRefresh() {
                         swipeRefreshLayout.setRefreshing(true);
-                        Log.d("swiperefreshlayout", "refresh");
                         refreshLogic();
                     }
                 }
@@ -66,24 +67,19 @@ public class SwipeRefreshLayoutUpdater {
     }
 
     private void checkForInternetPermission() {
-        if (ContextCompat.checkSelfPermission(context,
-                Manifest.permission.INTERNET)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.INTERNET},
-                    Constants.PERMISSION_REQUEST_INTERNET);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.INTERNET) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest
+                    .permission.INTERNET}, Constants.PERMISSION_REQUEST_INTERNET);
         }
     }
 
     private void checkForAccessNetworkState() {
-        if (ContextCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_NETWORK_STATE)
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_NETWORK_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.ACCESS_NETWORK_STATE},
-                    Constants.PERMISSION_REQUEST_ACCESS_NETWORK_STATE);
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest
+                    .permission.ACCESS_NETWORK_STATE}, Constants
+                    .PERMISSION_REQUEST_ACCESS_NETWORK_STATE);
         }
     }
 
@@ -97,7 +93,8 @@ public class SwipeRefreshLayoutUpdater {
 
     public void requestUpdate() {
         swipeRefreshLayout.setRefreshing(true);
-        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(context);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                .getInstance(context);
         ArrayList<Integer> ids = w.getCityIds();
         String ids_in_string = "";
         for (int i = 0; i < ids.size(); i++) {
@@ -109,42 +106,48 @@ public class SwipeRefreshLayoutUpdater {
         String url = "http://api.openweathermap.org/data/2.5/group?id=" + ids_in_string +
                 "&units=metric&appid=b57664c26a490d9081628b8d40ee5ef6";
 
-        final JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+        final JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.GET, url,
+                null, new Response.Listener<JSONObject>() {
 
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(context);
+            @Override
+            public void onResponse(JSONObject response) {
+                WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                        .getInstance(context);
 
-                        Log.d("response", response.toString());
+                Log.d("response", response.toString());
 
-                        try {
-                            Integer number_of_responses = response.getInt("cnt");
-                            JSONArray cities = response.getJSONArray("list");
-                            for (int i = 0; i < number_of_responses; i++) {
-                                JSONObject city = cities.getJSONObject(i);
-                                String description = city.getJSONArray("weather").getJSONObject(0).getString("description");
-                                String temperature = String.valueOf(city.getJSONObject("main").getDouble("temp"));
-                                temperature = String.valueOf(Math.round(10 * Double.parseDouble(temperature)) / 10.0);
-                                String humidity = String.valueOf(city.getJSONObject("main").getDouble("humidity"));
-                                Integer id = city.getInt("id");
-                                String name = city.getString("name");
-                                w.updateEntry(new CityWeatherObject(id, name, temperature, humidity, description));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        List<CityWeatherObject> result = w.getSavedCities();
-                        swipeRefreshLayoutCallbacksInterface.onResponseSuccess(result);
+                try {
+                    Integer number_of_responses = response.getInt("cnt");
+                    JSONArray cities = response.getJSONArray("list");
+                    for (int i = 0; i < number_of_responses; i++) {
+                        JSONObject city = cities.getJSONObject(i);
+                        String description = city.getJSONArray("weather").getJSONObject(0)
+                                .getString("description");
+                        String temperature = String.valueOf(city.getJSONObject("main").getDouble
+                                ("temp"));
+                        temperature = String.valueOf(Math.round(10 * Double.parseDouble
+                                (temperature)) / 10.0);
+                        String humidity = String.valueOf(city.getJSONObject("main").getDouble
+                                ("humidity"));
+                        Integer id = city.getInt("id");
+                        String name = city.getString("name");
+                        w.updateEntry(new CityWeatherObject(id, name, temperature, humidity,
+                                description));
                     }
-                }, new Response.ErrorListener() {
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                List<CityWeatherObject> result = w.getSavedCities();
+                swipeRefreshLayoutCallbacksInterface.onResponseSuccess(result);
+            }
+        }, new Response.ErrorListener() {
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                        swipeRefreshLayoutCallbacksInterface.onResponseError();
-                    }
-                });
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                swipeRefreshLayoutCallbacksInterface.onResponseError();
+            }
+        });
         jsObjRequest.setTag(Constants.VOLLEY_REQUEST_TAG);
         SingletonRequestQueue.getInstance(context).addToRequestQueue(jsObjRequest);
     }

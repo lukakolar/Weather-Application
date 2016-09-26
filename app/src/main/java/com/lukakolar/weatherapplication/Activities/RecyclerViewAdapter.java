@@ -29,7 +29,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
         }
     }
 
-    private int getSortedPosition(CityWeatherObject item){
+    private int getSortedPosition(CityWeatherObject item) {
         for (int i = 0; i < values.size(); i++) {
             if (item.name.compareToIgnoreCase(values.get(i).name) > 0) {
                 continue;
@@ -75,9 +75,11 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
         holder.txtHeader.setText(item.name);
 
         String degrees_celsius = context.getResources().getString(R.string.degrees_celsius);
-        String refreshToGetTemperature = context.getResources().getString(R.string.activity_main_refresh_to_get_temperature);
+        String refreshToGetTemperature = context.getResources().getString(R.string
+                .activity_main_refresh_to_get_temperature);
 
         if (item.temperature != null) {
+            // Sets alternative text if information for this city has not been updated yet
             String text = item.temperature + " " + degrees_celsius;
             holder.txtFooter.setText(text);
         } else {
@@ -92,13 +94,11 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
                 mainActivity.onCitySelected(item);
             }
         });
-
     }
 
     @Override
     public int getItemCount() {
         return values.size();
     }
-
 }
 

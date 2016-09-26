@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface DatabaseCallbacksInterface {
     void onEntriesRetrieved(List<CityWeatherObject> result);
+
     void onDatabaseOpened();
 }

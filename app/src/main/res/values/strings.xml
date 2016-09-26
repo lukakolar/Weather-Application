@@ -16,4 +16,6 @@
     <string name="activity_add_city">Add City</string>
     <string name="activity_add_city_hint">Search</string>
     <string name="activity_add_city_you_cannot_select_this_place">You cannot select this place</string>
+    <string name="progress_dialog_loading">Loading</string>
+    <string name="progress_dialog_please_wait">Please wait</string>
 </resources>

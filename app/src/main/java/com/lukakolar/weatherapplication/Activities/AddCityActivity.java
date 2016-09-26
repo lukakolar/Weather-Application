@@ -48,12 +48,12 @@ public class AddCityActivity extends AppCompatActivity {
 
         // AutoComplete
         currentSuggestions = new ArrayList<>();
-        customAutoCompleteTextView = (CustomAutoCompleteTextView)
-                findViewById(R.id.customAutoCompleteTextView);
-        customAutoCompleteTextView
-                .addTextChangedListener(new CustomAutoCompleteTextChangedListener(this));
-        suggestionsAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, currentSuggestions);
+        customAutoCompleteTextView = (CustomAutoCompleteTextView) findViewById(R.id
+                .activity_add_city_auto_complete);
+        customAutoCompleteTextView.addTextChangedListener(new
+                CustomAutoCompleteTextChangedListener(this));
+        suggestionsAdapter = new ArrayAdapter<>(this, android.R.layout
+                .simple_dropdown_item_1line, currentSuggestions);
         customAutoCompleteTextView.setAdapter(suggestionsAdapter);
 
         // MainLayout
@@ -68,7 +68,9 @@ public class AddCityActivity extends AppCompatActivity {
         final ProgressDialog progressDialog = createProgressDialog();
 
         // Handles callbacks from database handler
-        citiesDatabaseHandler = new CitiesDatabaseHandler(AddCityActivity.this, new DatabaseCallbacksInterface() {
+        citiesDatabaseHandler = new CitiesDatabaseHandler(AddCityActivity.this, new
+                DatabaseCallbacksInterface() {
+            // Suggestions for current text have returned
             @Override
             public void onEntriesRetrieved(List<CityWeatherObject> suggestions) {
                 currentSuggestions.clear();
@@ -77,8 +79,8 @@ public class AddCityActivity extends AppCompatActivity {
                     nameToId.put(suggestion.name, suggestion);
                 }
                 suggestionsAdapter.notifyDataSetChanged();
-                suggestionsAdapter = new ArrayAdapter<>(AddCityActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, currentSuggestions);
+                suggestionsAdapter = new ArrayAdapter<>(AddCityActivity.this, android.R.layout
+                        .simple_dropdown_item_1line, currentSuggestions);
                 customAutoCompleteTextView.setAdapter(suggestionsAdapter);
                 queryRunning = false;
             }
@@ -98,18 +100,23 @@ public class AddCityActivity extends AppCompatActivity {
 
 
     private ProgressDialog createProgressDialog() {
+        String loading = getResources().getString(R.string.progress_dialog_loading);
+        String pleaseWait = getResources().getString(R.string.progress_dialog_please_wait);
+
         ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Loading");
-        progressDialog.setMessage("Please wait");
+        progressDialog.setTitle(loading);
+        progressDialog.setMessage(pleaseWait);
         progressDialog.setCancelable(false);
         progressDialog.show();
         return progressDialog;
     }
 
-
-    void showSuggestions(final String searchTerm){
+    // Called from CustomAutoCompleteTextChangedListener
+    void showSuggestions(final String searchTerm) {
         currentEnteredText = searchTerm;
-        if (!queryRunning && citiesDatabaseHandler != null && citiesDatabaseHandler.isDatabaseOpen()) {
+        // Perform query only if query is not already running and database is opened
+        if (!queryRunning && citiesDatabaseHandler != null && citiesDatabaseHandler
+                .isDatabaseOpen()) {
             queryRunning = true;
             citiesDatabaseHandler.getSuggestions(searchTerm);
         } else {
@@ -127,15 +134,17 @@ public class AddCityActivity extends AppCompatActivity {
         View view = this.getCurrentFocus();
         if (view != null) {
             // Hide keyboard
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context
+                    .INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
         CityWeatherObject obj = nameToId.get(currentEnteredText);
         if (obj == null) {
+            // City that has not been in suggestions is not a valid city
             String ok = getResources().getString(R.string.ok);
-            String youCannotSelectThisPlace =
-                    getResources().getString(R.string.activity_add_city_you_cannot_select_this_place);
+            String youCannotSelectThisPlace = getResources().getString(R.string
+                    .activity_add_city_you_cannot_select_this_place);
 
             Snackbar.make(mainLayout, youCannotSelectThisPlace, Snackbar.LENGTH_LONG)
                     .setAction(ok, new View.OnClickListener() {
@@ -146,7 +155,7 @@ public class AddCityActivity extends AppCompatActivity {
         } else {
             Intent returnIntent = new Intent();
             returnIntent.putExtra(Constants.CITY_WEATHER_OBJECT, obj);
-            setResult(Activity.RESULT_OK,returnIntent);
+            setResult(Activity.RESULT_OK, returnIntent);
             finish();
         }
     }

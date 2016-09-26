@@ -36,38 +36,45 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // FAB
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent addCity = new Intent(MainActivity.this, AddCityActivity.class);
-                startActivityForResult(addCity, Constants.ADD_CITY_REQUEST);
-            }
-        });
+        if (fab != null) {
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent addCity = new Intent(MainActivity.this, AddCityActivity.class);
+                    startActivityForResult(addCity, Constants.ADD_CITY_REQUEST);
+                }
+            });
+        }
 
         // RecyclerView
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.activity_main_recycler_view);
         RecyclerView.LayoutManager recyclerViewLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(recyclerViewLayoutManager);
 
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper
+                .SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = viewHolder.getAdapterPosition();
                 CityWeatherObject item = (CityWeatherObject) viewHolder.itemView.getTag();
                 showSnackbarUndo(item);
-                WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(MainActivity.this);
+                WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                        .getInstance(MainActivity.this);
                 w.deleteEntry(item);
                 recyclerViewAdapter.remove(position);
                 checkIfEmpty();
             }
 
             @Override
-            public boolean onMove(RecyclerView recyclerView,
-                                  RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                  RecyclerView.ViewHolder target) {
                 return false;
             }
 
@@ -76,69 +83,79 @@ public class MainActivity extends AppCompatActivity {
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         // SwipeRefreshLayout
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id
+                .activity_main_swipe_refresh_layout);
 
         // Other
-        textNoItems = (TextView) findViewById(R.id.text_no_items);
+        textNoItems = (TextView) findViewById(R.id.activity_main_text_no_items);
         mainLayout = (CoordinatorLayout) findViewById(R.id.activity_main);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                .getInstance(this);
         w.openDatabase();
         List<CityWeatherObject> values = w.getSavedCities();
         recyclerViewAdapter = new RecyclerViewAdapter(this, values);
         recyclerView.setAdapter(recyclerViewAdapter);
-        swipeRefreshLayoutUpdater = new SwipeRefreshLayoutUpdater(this, swipeRefreshLayout, new SwipeRefreshLayoutCallbacksInterface() {
-            @Override
-            public void onConnectionUnavailable() {
-                showSnackbarNoInternetConnection();
-                swipeRefreshLayout.setRefreshing(false);
-            }
 
-            @Override
-            public void onResponseSuccess(List<CityWeatherObject> result) {
-                swipeRefreshLayout.setRefreshing(false);
-                recyclerViewAdapter.refresh(result);
-            }
+        // Performs updates via API and listens for callbacks regarding updates
+        swipeRefreshLayoutUpdater = new SwipeRefreshLayoutUpdater(this, swipeRefreshLayout, new
+                SwipeRefreshLayoutCallbacksInterface() {
+                    @Override
+                    public void onConnectionUnavailable() {
+                        showSnackbarNoInternetConnection();
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
 
-            @Override
-            public void onResponseError() {
-                swipeRefreshLayout.setRefreshing(false);
-                showSnackbarErrorFetchingData();
-            }
-        });
+                    @Override
+                    public void onResponseSuccess(List<CityWeatherObject> result) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        recyclerViewAdapter.refresh(result);
+                    }
+
+                    @Override
+                    public void onResponseError() {
+                        swipeRefreshLayout.setRefreshing(false);
+                        showSnackbarErrorFetchingData();
+                    }
+                });
         checkIfEmpty();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                .getInstance(this);
         w.close();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                .getInstance(this);
         w.openDatabase();
         if (requestCode == Constants.ADD_CITY_REQUEST) {
-            if(resultCode == Activity.RESULT_OK){
-                CityWeatherObject result = data.getExtras().getParcelable(Constants.CITY_WEATHER_OBJECT);
+            if (resultCode == Activity.RESULT_OK) {
+                CityWeatherObject result = data.getExtras().getParcelable(Constants
+                        .CITY_WEATHER_OBJECT);
                 createEntry(result);
             }
         }
     }
 
+    // Called from RecyclerViewAdapter
     void onCitySelected(CityWeatherObject item) {
         Intent intent = new Intent(this, CityInfoActivity.class);
         intent.putExtra(Constants.CITY_WEATHER_OBJECT, item);
         startActivity(intent);
     }
 
+    // Sets appropriate layout if there are no elements in the list
     private void checkIfEmpty() {
         int length = recyclerViewAdapter.getItemCount();
         if (length > 0) {
@@ -150,8 +167,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Creates a row in the list for newly added city
     private void createEntry(CityWeatherObject item) {
-        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(this);
+        WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton
+                .getInstance(this);
         boolean already_exists = w.checkIfEntryExists(item);
         if (already_exists) {
             showSnackbarCityAlreadyExists(item.name);
@@ -173,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View view) {
                     }
                 }).show();
-
     }
 
     private void showSnackbarUndo(final CityWeatherObject item) {
@@ -188,11 +206,11 @@ public class MainActivity extends AppCompatActivity {
                         createEntry(item);
                     }
                 }).show();
-
     }
 
     private void showSnackbarNoInternetConnection() {
-        String networkUnavailable = getResources().getString(R.string.activity_main_network_unavailable);
+        String networkUnavailable = getResources().getString(R.string
+                .activity_main_network_unavailable);
         String ok = getResources().getString(R.string.ok);
 
         Snackbar snackbar = Snackbar
@@ -207,7 +225,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSnackbarErrorFetchingData() {
-        String errorFetchingData = getResources().getString(R.string.activity_main_error_fetching_data);
+        String errorFetchingData = getResources().getString(R.string
+                .activity_main_error_fetching_data);
         String retry = getResources().getString(R.string.retry);
 
         Snackbar snackbar = Snackbar

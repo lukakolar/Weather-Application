@@ -23,18 +23,17 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
     private Context context;
     private DatabaseCallbacksInterface databaseCallbacksInterface;
 
-    public CitiesDatabaseHandler(Context context, DatabaseCallbacksInterface databaseCallbacksInterface) {
+    public CitiesDatabaseHandler(Context context, DatabaseCallbacksInterface
+            databaseCallbacksInterface) {
         super(context, Constants.CITIES_DATABASE_NAME, null, Constants.CITIES_DATABASE_VERSION);
         this.context = context;
         this.databaseCallbacksInterface = databaseCallbacksInterface;
-        Log.d("CitiesDatabaseHandler", "consctructor");
         CreateDatabase worker = new CreateDatabase();
         worker.execute();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
     }
 
     @Override
@@ -54,9 +53,8 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
     }
 
     private void createDataBase() {
-        Log.d("CitiesDatabaseHandler", "createDatabase");
         boolean databaseExists = checkDataBaseExists();
-        if(!databaseExists){
+        if (!databaseExists) {
             try {
                 copyDataBase();
             } catch (IOException e) {
@@ -66,14 +64,14 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    private boolean checkDataBaseExists(){
+    private boolean checkDataBaseExists() {
         File databaseFile = new File(Constants.CITIES_DATABASE_FULL_PATH);
         return databaseFile.exists();
     }
 
     private void copyDataBase() throws IOException {
-        Log.d("CitiesDatabaseHandler", "copyDatabase");
-        InputStream inputStream = context.getApplicationContext().getAssets().open(Constants.CITIES_DATABASE_NAME);
+        InputStream inputStream = context.getApplicationContext().getAssets().open(Constants
+                .CITIES_DATABASE_NAME);
 
         File parentDirectory = new File(Constants.CITIES_DATABASE_PATH);
         parentDirectory.mkdirs();
@@ -82,20 +80,19 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
 
         byte[] buffer = new byte[1024];
         int length;
-        while ((length = inputStream.read(buffer))>0){
+        while ((length = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, length);
         }
         outputStream.flush();
         outputStream.close();
         inputStream.close();
-        Log.d("CitiesDatabaseHandler", "endOfCopyDatabase");
     }
 
-    private void openDataBase()  {
+    private void openDataBase() {
         if (database == null || !isDatabaseOpen()) {
             Log.d("databaseC", "OPENING");
             database = getWritableDatabase();
-        } else{
+        } else {
             Log.d("databaseC", "OPENED");
         }
     }
@@ -108,7 +105,6 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
     private class CreateDatabase extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            Log.d("CitiesDatabaseHandler", "doInBackground");
             createDataBase();
             openDataBase();
             return null;
@@ -120,28 +116,31 @@ public class CitiesDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    // Returns suggestions for given input
     private class GetCities extends AsyncTask<String, Void, List<CityWeatherObject>> {
         private Cursor cursor;
 
         @Override
         protected List<CityWeatherObject> doInBackground(String... searchTerm) {
-            List<CityWeatherObject> recordsList = new ArrayList<>();
+            List<CityWeatherObject> suggestions = new ArrayList<>();
 
-            cursor = database.query(true, Constants.CITIES_DATABASE_TABLE_NAME, null,
-                    Constants.CITIES_DATABASE_FIELD_NAME + " LIKE ?",
-                    new String[]{searchTerm[0] + "%"}, null, null,
-                    Constants.CITIES_DATABASE_FIELD_NAME, "0,5");
+            cursor = database.query(true, Constants.CITIES_DATABASE_TABLE_NAME, null, Constants
+                    .CITIES_DATABASE_FIELD_NAME + " LIKE ?", new String[]{searchTerm[0] + "%"},
+                    null, null, Constants.CITIES_DATABASE_FIELD_NAME, "0,5");
 
             if (cursor.moveToFirst()) {
                 do {
-                    Integer id = cursor.getInt(cursor.getColumnIndex(Constants.CITIES_DATABASE_FIELD_ID));
-                    String objectName = cursor.getString(cursor.getColumnIndex(Constants.CITIES_DATABASE_FIELD_NAME));
-                    CityWeatherObject item = new CityWeatherObject(id, objectName, null, null, null);
-                    recordsList.add(item);
+                    Integer id = cursor.getInt(cursor.getColumnIndex(Constants
+                            .CITIES_DATABASE_FIELD_ID));
+                    String objectName = cursor.getString(cursor.getColumnIndex(Constants
+                            .CITIES_DATABASE_FIELD_NAME));
+                    CityWeatherObject item = new CityWeatherObject(id, objectName, null, null,
+                            null);
+                    suggestions.add(item);
 
                 } while (cursor.moveToNext());
             }
-            return recordsList;
+            return suggestions;
         }
 
         @Override

@@ -5,7 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 // Class that represents a city in RecyclerView
-public class CityWeatherObject implements Parcelable{
+public class CityWeatherObject implements Parcelable {
 
     public String name;
     public Integer id;
@@ -13,7 +13,8 @@ public class CityWeatherObject implements Parcelable{
     public String humidity;
     public String description;
 
-    public CityWeatherObject(Integer id, String name, String temperature, String humidity, String description){
+    public CityWeatherObject(Integer id, String name, String temperature, String humidity, String
+            description) {
         this.id = id;
         this.name = name;
         this.temperature = temperature;
@@ -35,8 +36,8 @@ public class CityWeatherObject implements Parcelable{
         return id.toString() + " " + name + " " + temperature + " " + humidity + " " + description;
     }
 
-    // Parcelling part
-    public CityWeatherObject(Parcel in){
+    // Parcelling
+    public CityWeatherObject(Parcel in) {
         String[] data = new String[5];
 
         in.readStringArray(data);
@@ -48,19 +49,20 @@ public class CityWeatherObject implements Parcelable{
     }
 
     @Override
-    public int describeContents(){
+    public int describeContents() {
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[] {
+        dest.writeStringArray(new String[]{
                 String.valueOf(this.id),
                 this.name,
                 this.temperature,
                 this.humidity,
                 this.description});
     }
+
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public CityWeatherObject createFromParcel(Parcel in) {
             return new CityWeatherObject(in);
@@ -70,5 +72,4 @@ public class CityWeatherObject implements Parcelable{
             return new CityWeatherObject[size];
         }
     };
-
 }

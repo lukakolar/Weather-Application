@@ -15,14 +15,16 @@
         android:id="@+id/activity_add_city_text_input_layout">
 
         <com.lukakolar.weatherapplication.Activities.CustomAutoCompleteTextView
-            android:id="@+id/customAutoCompleteTextView"
+            android:id="@+id/activity_add_city_auto_complete"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:imeOptions="actionNext"
             android:inputType="text"
             android:hint="@string/activity_add_city_hint"
             android:completionThreshold="1" >
+
         </com.lukakolar.weatherapplication.Activities.CustomAutoCompleteTextView>
+
     </android.support.design.widget.TextInputLayout>
 
     <Button

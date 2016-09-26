@@ -7,7 +7,7 @@ import android.text.TextWatcher;
 class CustomAutoCompleteTextChangedListener implements TextWatcher {
     private Context context;
 
-    CustomAutoCompleteTextChangedListener(Context context){
+    CustomAutoCompleteTextChangedListener(Context context) {
         this.context = context;
     }
 
@@ -16,8 +16,7 @@ class CustomAutoCompleteTextChangedListener implements TextWatcher {
     }
 
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count,
-                                  int after) {
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
     }
 
     @Override
