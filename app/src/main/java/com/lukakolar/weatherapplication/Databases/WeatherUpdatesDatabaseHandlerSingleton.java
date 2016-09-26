@@ -90,6 +90,13 @@ public class WeatherUpdatesDatabaseHandlerSingleton extends SQLiteOpenHelper {
         }
     }
 
+    public void deleteEntry(CityWeatherObject item) {
+        if(checkIfEntryExists(item)){
+            database.delete(Constants.WEATHER_UPDATES_DATABASE_TABLE_NAME,
+                    Constants.WEATHER_UPDATES_DATABASE_FIELD_ID + "=" + item.id, null);
+        }
+    }
+
     public void updateEntry(CityWeatherObject item) {
         ContentValues args = new ContentValues();
 

@@ -29,9 +29,20 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
         }
     }
 
+    private int getSortedPosition(CityWeatherObject item){
+        for (int i = 0; i < values.size(); i++) {
+            if (item.name.compareToIgnoreCase(values.get(i).name) > 0) {
+                continue;
+            }
+            return i;
+        }
+        return values.size();
+    }
+
     void add(CityWeatherObject item) {
-        values.add(getItemCount(), item);
-        notifyItemInserted(getItemCount());
+        int sortedPosition = getSortedPosition(item);
+        values.add(sortedPosition, item);
+        notifyItemInserted(sortedPosition);
     }
 
     void remove(int position) {

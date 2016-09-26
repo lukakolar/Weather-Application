@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.widget.TextView;
 
@@ -18,7 +19,6 @@ import com.lukakolar.weatherapplication.Databases.WeatherUpdatesDatabaseHandlerS
 import com.lukakolar.weatherapplication.Entity.CityWeatherObject;
 import com.lukakolar.weatherapplication.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,8 +48,27 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView.LayoutManager recyclerViewLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(recyclerViewLayoutManager);
 
-        recyclerViewAdapter = new RecyclerViewAdapter(this, new ArrayList<CityWeatherObject>());
-        recyclerView.setAdapter(recyclerViewAdapter);
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int position = viewHolder.getAdapterPosition();
+                CityWeatherObject item = (CityWeatherObject) viewHolder.itemView.getTag();
+                showSnackbarUndo(item);
+                WeatherUpdatesDatabaseHandlerSingleton w = WeatherUpdatesDatabaseHandlerSingleton.getInstance(MainActivity.this);
+                w.deleteEntry(item);
+                recyclerViewAdapter.remove(position);
+                checkIfEmpty();
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView,
+                                  RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         // Other
         textNoItems = (TextView) findViewById(R.id.text_no_items);
@@ -130,6 +149,21 @@ public class MainActivity extends AppCompatActivity {
                 .setAction(ok, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                    }
+                }).show();
+
+    }
+
+    private void showSnackbarUndo(final CityWeatherObject item) {
+        String place = getResources().getString(R.string.activity_main_place);
+        String deleted = getResources().getString(R.string.activity_main_deleted);
+        String undo = getResources().getString(R.string.undo);
+
+        Snackbar.make(mainLayout, place + " " + item.name + " " + deleted, Snackbar.LENGTH_LONG)
+                .setAction(undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        createEntry(item);
                     }
                 }).show();
 
