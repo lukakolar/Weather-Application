@@ -6,7 +6,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,14 +23,10 @@ public class CityInfoActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private SwipeRefreshLayoutUpdater swipeRefreshLayoutUpdater;
     private LinearLayout mainLayout;
-    private Integer currentCityId;
     private TextView temperatureView;
     private TextView humidityView;
     private TextView descriptionView;
-    private String temperatureString;
-    private String humidityString;
-    private String descriptionString;
-    private String nameString;
+    private CityWeatherObject currentCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,25 +38,12 @@ public class CityInfoActivity extends AppCompatActivity {
         descriptionView = (TextView) findViewById(R.id.activity_city_info_description);
 
         if (savedInstanceState != null) {
-            String name = savedInstanceState
-                    .getString(Constants.WEATHER_UPDATES_DATABASE_FIELD_NAME);
-            String temperature = savedInstanceState
-                    .getString(Constants.WEATHER_UPDATES_DATABASE_FIELD_TEMPERATURE);
-            String humidity = savedInstanceState
-                    .getString(Constants.WEATHER_UPDATES_DATABASE_FIELD_HUMIDITY);
-            String description = savedInstanceState
-                    .getString(Constants.WEATHER_UPDATES_DATABASE_FIELD_DESCRIPTION);
-            Integer id = savedInstanceState
-                    .getInt(Constants.WEATHER_UPDATES_DATABASE_FIELD_ID);
-            updateInfo(id, name, temperature, humidity, description);
+            CityWeatherObject city = savedInstanceState.getParcelable(Constants.CITY_WEATHER_OBJECT);
+            updateInfo(city);
         } else {
             Intent intent = getIntent();
-            Integer id = intent.getIntExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_ID, 0);
-            String name = intent.getStringExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_NAME);
-            String temperature = intent.getStringExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_TEMPERATURE);
-            String humidity = intent.getStringExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_HUMIDITY);
-            String description = intent.getStringExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_DESCRIPTION);
-            updateInfo(id, name, temperature, humidity, description);
+            CityWeatherObject city = intent.getExtras().getParcelable(Constants.CITY_WEATHER_OBJECT);
+            updateInfo(city);
         }
 
         // SwipeRefreshLayout
@@ -91,8 +73,8 @@ public class CityInfoActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
                 for (int i = 0; i < result.size(); i++) {
                     CityWeatherObject city = result.get(i);
-                    if (city.id.equals(currentCityId)) {
-                        updateInfo(city.id, city.name, city.temperature, city.humidity, city.description);
+                    if (city.id.equals(currentCity.id)) {
+                        updateInfo(city);
                     }
                 }
             }
@@ -114,41 +96,32 @@ public class CityInfoActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString(Constants.WEATHER_UPDATES_DATABASE_FIELD_NAME, nameString);
-        savedInstanceState.putString(Constants.WEATHER_UPDATES_DATABASE_FIELD_TEMPERATURE, temperatureString);
-        savedInstanceState.putString(Constants.WEATHER_UPDATES_DATABASE_FIELD_HUMIDITY, humidityString);
-        savedInstanceState.putString(Constants.WEATHER_UPDATES_DATABASE_FIELD_DESCRIPTION, descriptionString);
-        savedInstanceState.putInt(Constants.WEATHER_UPDATES_DATABASE_FIELD_ID, currentCityId);
+        savedInstanceState.putParcelable(Constants.CITY_WEATHER_OBJECT, currentCity);
 
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    private void updateInfo(Integer id, String name, String temperature, String humidity, String description) {
+    private void updateInfo(CityWeatherObject city) {
+        currentCity = new CityWeatherObject(city);
+
         String degrees_celsius = getResources().getString(R.string.degrees_celsius);
         String percent = getResources().getString(R.string.percent);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            Log.d("actionbar", name);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setTitle(name);
+            actionBar.setTitle(city.name);
         }
 
-        if (description == null) {
+        if (city.description == null) {
             String refreshToGetTemperature = getResources().getString(R.string.activity_main_refresh_to_get_temperature);
             temperatureView.setText(refreshToGetTemperature);
         } else {
-            temperatureView.setText(temperature  + " " + degrees_celsius);
-            humidityView.setText(humidity + " " + percent);
-            descriptionView.setText(description);
+            temperatureView.setText(city.temperature  + " " + degrees_celsius);
+            humidityView.setText(city.humidity + " " + percent);
+            descriptionView.setText(city.description);
         }
-
-        currentCityId = id;
-        nameString = name;
-        temperatureString = temperature;
-        humidityString = humidity;
-        descriptionString = description;
     }
 
     private void showSnackbarNoInternetConnection() {

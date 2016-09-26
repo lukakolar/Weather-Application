@@ -145,8 +145,7 @@ public class AddCityActivity extends AppCompatActivity {
                     }).show();
         } else {
             Intent returnIntent = new Intent();
-            returnIntent.putExtra(Constants.CITIES_DATABASE_FIELD_NAME, obj.name);
-            returnIntent.putExtra(Constants.CITIES_DATABASE_FIELD_ID, obj.id);
+            returnIntent.putExtra(Constants.CITY_WEATHER_OBJECT, obj);
             setResult(Activity.RESULT_OK,returnIntent);
             finish();
         }

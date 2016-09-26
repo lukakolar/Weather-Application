@@ -127,20 +127,15 @@ public class MainActivity extends AppCompatActivity {
         w.openDatabase();
         if (requestCode == Constants.ADD_CITY_REQUEST) {
             if(resultCode == Activity.RESULT_OK){
-                String name = data.getStringExtra(Constants.CITIES_DATABASE_FIELD_NAME);
-                Integer id = data.getIntExtra(Constants.CITIES_DATABASE_FIELD_ID, 0);
-                createEntry(new CityWeatherObject(id, name, null, null, null));
+                CityWeatherObject result = data.getExtras().getParcelable(Constants.CITY_WEATHER_OBJECT);
+                createEntry(result);
             }
         }
     }
 
     void onCitySelected(CityWeatherObject item) {
         Intent intent = new Intent(this, CityInfoActivity.class);
-        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_ID, item.id);
-        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_NAME, item.name);
-        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_TEMPERATURE, item.temperature);
-        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_HUMIDITY, item.humidity);
-        intent.putExtra(Constants.WEATHER_UPDATES_DATABASE_FIELD_DESCRIPTION, item.description);
+        intent.putExtra(Constants.CITY_WEATHER_OBJECT, item);
         startActivity(intent);
     }
 

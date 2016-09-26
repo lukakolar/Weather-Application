@@ -9,10 +9,10 @@ public class Constants {
     public static final String CITIES_DATABASE_FIELD_ID = "id";
     public static final String CITIES_DATABASE_FIELD_NAME = "name";
     public static final String VOLLEY_REQUEST_TAG = "weather";
+    public static final String CITY_WEATHER_OBJECT = "cityWeatherObject";
     public static final int ADD_CITY_REQUEST = 3;
     public static final int PERMISSION_REQUEST_INTERNET = 1;
     public static final int PERMISSION_REQUEST_ACCESS_NETWORK_STATE = 2;
-
     public static final int WEATHER_UPDATES_DATABASE_VERSION = 1;
     public static final String WEATHER_UPDATES_DATABASE_NAME = "WeatherUpdates";
     public static final String WEATHER_UPDATES_DATABASE_TABLE_NAME = "weather_updates";
