@@ -1,10 +1,12 @@
 package com.lukakolar.weatherapplication.Activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -57,13 +59,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.ADD_CITY_REQUEST) {
-            if(resultCode == Activity.RESULT_OK){
-                String name = data.getStringExtra("name");
-                recyclerViewAdapter.add(new CityWeatherObject(null, name, null, null, null));
-                checkIfEmpty();
+            if (resultCode == Activity.RESULT_OK) {
+                String name = data.getStringExtra(Constants.CITIES_DATABASE_FIELD_NAME);
+                Integer id = data.getIntExtra(Constants.CITIES_DATABASE_FIELD_ID, 0);
+                createEntry(new CityWeatherObject(id, name, null, null, null));
             }
         }
     }
+
 
     private void checkIfEmpty() {
         int length = recyclerViewAdapter.getItemCount();
@@ -74,5 +77,11 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setVisibility(View.INVISIBLE);
             textNoItems.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void createEntry(CityWeatherObject item) {
+        recyclerViewAdapter.add(item);
+        checkIfEmpty();
+
     }
 }
