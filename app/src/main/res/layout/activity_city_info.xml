@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textColor="@color/black400"
+                android:textColor="@color/black600"
                 android:textSize="45sp"/>
             <com.lukakolar.weatherapplication.Activities.TextViewRobotoThin
                 android:id="@+id/activity_city_info_humidity"

@@ -56,6 +56,11 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
         this.context = context;
     }
 
+    void refresh(List<CityWeatherObject> values) {
+        this.values = values;
+        notifyDataSetChanged();
+    }
+
     @Override
     public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -68,6 +73,16 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
         CityWeatherObject item = values.get(position);
         holder.layout.setTag(item);
         holder.txtHeader.setText(item.name);
+
+        String degrees_celsius = context.getResources().getString(R.string.degrees_celsius);
+        String refreshToGetTemperature = context.getResources().getString(R.string.activity_main_refresh_to_get_temperature);
+
+        if (item.temperature != null) {
+            String text = item.temperature + " " + degrees_celsius;
+            holder.txtFooter.setText(text);
+        } else {
+            holder.txtFooter.setText(refreshToGetTemperature);
+        }
 
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,8 @@ import com.lukakolar.weatherapplication.Constants;
 import com.lukakolar.weatherapplication.Databases.WeatherUpdatesDatabaseHandlerSingleton;
 import com.lukakolar.weatherapplication.Entity.CityWeatherObject;
 import com.lukakolar.weatherapplication.R;
+import com.lukakolar.weatherapplication.REST.SwipeRefreshLayoutCallbacksInterface;
+import com.lukakolar.weatherapplication.REST.SwipeRefreshLayoutUpdater;
 
 import java.util.List;
 
@@ -26,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TextView textNoItems;
     private CoordinatorLayout mainLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private SwipeRefreshLayoutUpdater swipeRefreshLayoutUpdater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+        // SwipeRefreshLayout
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+
         // Other
         textNoItems = (TextView) findViewById(R.id.text_no_items);
         mainLayout = (CoordinatorLayout) findViewById(R.id.activity_main);
@@ -83,6 +91,25 @@ public class MainActivity extends AppCompatActivity {
         List<CityWeatherObject> values = w.getSavedCities();
         recyclerViewAdapter = new RecyclerViewAdapter(this, values);
         recyclerView.setAdapter(recyclerViewAdapter);
+        swipeRefreshLayoutUpdater = new SwipeRefreshLayoutUpdater(this, swipeRefreshLayout, new SwipeRefreshLayoutCallbacksInterface() {
+            @Override
+            public void onConnectionUnavailable() {
+                showSnackbarNoInternetConnection();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onResponseSuccess(List<CityWeatherObject> result) {
+                swipeRefreshLayout.setRefreshing(false);
+                recyclerViewAdapter.refresh(result);
+            }
+
+            @Override
+            public void onResponseError() {
+                swipeRefreshLayout.setRefreshing(false);
+                showSnackbarErrorFetchingData();
+            }
+        });
         checkIfEmpty();
     }
 
@@ -167,5 +194,35 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).show();
 
+    }
+
+    private void showSnackbarNoInternetConnection() {
+        String networkUnavailable = getResources().getString(R.string.activity_main_network_unavailable);
+        String ok = getResources().getString(R.string.ok);
+
+        Snackbar snackbar = Snackbar
+                .make(mainLayout, networkUnavailable, Snackbar.LENGTH_LONG)
+                .setAction(ok, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                });
+        snackbar.show();
+    }
+
+    private void showSnackbarErrorFetchingData() {
+        String errorFetchingData = getResources().getString(R.string.activity_main_error_fetching_data);
+        String retry = getResources().getString(R.string.retry);
+
+        Snackbar snackbar = Snackbar
+                .make(mainLayout, errorFetchingData, Snackbar.LENGTH_LONG)
+                .setAction(retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        swipeRefreshLayoutUpdater.requestUpdate();
+                    }
+                });
+        snackbar.show();
     }
 }
